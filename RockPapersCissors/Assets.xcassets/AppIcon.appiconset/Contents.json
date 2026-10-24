@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "500-rock-svgrepo-com.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -12,6 +13,7 @@
           "value" : "dark"
         }
       ],
+      "filename" : "500-rock-svgrepo-com 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -23,6 +25,7 @@
           "value" : "tinted"
         }
       ],
+      "filename" : "500-rock-svgrepo-com 2.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
