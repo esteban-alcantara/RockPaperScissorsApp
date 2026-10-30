@@ -120,14 +120,15 @@ class HistoryViewController : UIViewController {
         return stackView
     }()
     
-    private let matchesStackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.spacing = 12
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        return stack
+    private let historyTableView: UITableView = {
+        let tableView = UITableView()
+        tableView.backgroundColor = .clear
+        tableView.separatorStyle = .none
+        tableView.allowsSelection = false
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        return tableView
     }()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -144,54 +145,18 @@ class HistoryViewController : UIViewController {
         drawCountLabel.text = "\(matchResults.filter { $0 == 1 }.count)"
         loseCountLabel.text = "\(matchResults.filter { $0 == 0 }.count)"
 
-        for row in matchesStackView.arrangedSubviews {
-            matchesStackView.removeArrangedSubview(row)
-            row.removeFromSuperview()
-        }
-
-        for result in matchResults {
-            let text: String
-            let image: UIImage
-
-            switch result {
-            case 0:
-                text = "Lose!"
-                image = UIImage(resource: .lose)
-            case 1:
-                text = "Draw!"
-                image = UIImage(resource: .draw)
-            case 2:
-                text = "Win!"
-                image = UIImage(resource: .win)
-            default:
-                continue
-            }
-
-            let label = UILabel()
-            label.text = text
-            label.font = .systemFont(ofSize: 17, weight: .bold)
-            label.textColor = UIColor(resource: .gray1)
-
-            let imageView = UIImageView(image: image)
-            imageView.contentMode = .scaleAspectFit
-            imageView.translatesAutoresizingMaskIntoConstraints = false
-
-            NSLayoutConstraint.activate([
-                imageView.widthAnchor.constraint(equalToConstant: 25),
-                imageView.heightAnchor.constraint(equalToConstant: 25)
-            ])
-
-            let row = UIStackView(arrangedSubviews: [label, imageView])
-            row.axis = .horizontal
-            row.spacing = 8
-            row.alignment = .center
-
-            matchesStackView.addArrangedSubview(row)
-        }
+        historyTableView.reloadData()
     }
 
     private func setupInitialValues() {
         view.backgroundColor = UIColor(resource: .blue3)
+        historyTableView.register(
+            HistoryTableViewCell.self,
+            forCellReuseIdentifier: HistoryTableViewCell.reuseIdentifier
+        )
+        historyTableView.dataSource = self
+        historyTableView.rowHeight = UITableView.automaticDimension
+        historyTableView.estimatedRowHeight = 60
     }
     
     private func setupHerarchy() {
@@ -212,7 +177,7 @@ class HistoryViewController : UIViewController {
         countMatchStackView.addArrangedSubview(countLoseStackView)
         view.addSubview(countMatchStackView)
         
-        view.addSubview(matchesStackView)
+        view.addSubview(historyTableView)
     }
     
     private func setupConstraints() {
@@ -236,10 +201,30 @@ class HistoryViewController : UIViewController {
             countMatchStackView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 24),
             countMatchStackView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -24),
 
-            matchesStackView.topAnchor.constraint(equalTo: countMatchStackView.bottomAnchor, constant: 24),
-            matchesStackView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 24),
-            matchesStackView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -24),
+            historyTableView.topAnchor.constraint(equalTo: countMatchStackView.bottomAnchor, constant: 24),
+            historyTableView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 24),
+            historyTableView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -24),
+            historyTableView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
             
         ])
+    }
+}
+
+extension HistoryViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        matchResults.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: HistoryTableViewCell.reuseIdentifier,
+            for: indexPath
+        ) as? HistoryTableViewCell else {
+            return UITableViewCell()
+        }
+
+        let result = matchResults[indexPath.row]
+        cell.configure(with: result)
+        return cell
     }
 }
